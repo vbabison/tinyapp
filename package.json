@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/vbabison/tinyapp/issues"
   },
-  "homepage": "https://github.com/vbabison/tinyapp#readme"
+  "homepage": "https://github.com/vbabison/tinyapp#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
 }
