@@ -1,1 +1,1 @@
-app.set("view engine", "ejs")
+res.redirect(`/urls/${shortURL}`)
