@@ -50,14 +50,16 @@ app.post("/urls", (req, res) => {
   const randomString = generateRandomString();
   res.render;
   urlDatabase[randomString] = req.body.longURL;
-  // console.log(urlDatabase)
   res.redirect(`/urls/${randomString}`);
-  // console.log(req.body.longURL)
-  // console.log(urlDatabase)  // Log the POST request body to the console
-  // res.send("Ok");         // Respond with 'Ok' (we will replace this)
 });
 
 app.get("/u/:shortURL", (req, res) => {
   const longURL = urlDatabase[req.params.shortURL];
   res.redirect(longURL);
+});
+
+app.post("/urls/:shortURL/delete", (req, res) => {
+  delete urlDatabase[req.params.shortURL];
+  // res.render;
+  res.redirect(`/urls`);
 });
