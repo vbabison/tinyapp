@@ -2,7 +2,9 @@ const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
 const bodyParser = require("body-parser");
+const cookieParser = require('cookie-parser')
 app.use(bodyParser.urlencoded({extended: true}));
+app.use(cookieParser())
 
 app.set("view engine", "ejs");
 
@@ -11,13 +13,25 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+app.post("/login", (req, res) => {
+  res.cookie('username', req.body.username)
+  res.redirect(`/urls`);
+});
+
+app.post("/logout", (req, res) => {
+  res.clearCookie('username', req.body.username)
+  res.redirect(`/urls`);
+});
+
 app.get("/urls", (req, res) => {
-  const templateVars = { urls: urlDatabase };
+  console.log(req.cookies)
+  const templateVars = { user: req.cookies["username"], urls: urlDatabase };
   res.render("urls_index", templateVars);
 });
 
 app.get("/urls/new", (req, res) => {
-  res.render("urls_new");
+  const templateVars = { urls: urlDatabase };
+  res.render("urls_new", templateVars);
 });
 
 app.get("/urls/:shortURL", (req, res) => {
@@ -48,7 +62,6 @@ const generateRandomString = () => {
 
 app.post("/urls", (req, res) => {
   const randomString = generateRandomString();
-  res.render;
   urlDatabase[randomString] = req.body.longURL;
   res.redirect(`/urls/${randomString}`);
 });
@@ -60,6 +73,15 @@ app.get("/u/:shortURL", (req, res) => {
 
 app.post("/urls/:shortURL/delete", (req, res) => {
   delete urlDatabase[req.params.shortURL];
-  // res.render;
   res.redirect(`/urls`);
 });
+
+app.post("/urls/:shortURL", (req, res) => {
+  urlDatabase[req.params.shortURL] = req.body.longURL;
+  res.redirect(`/urls`);
+});
+
+
+// app.post("/logout", (req, res) => {
+//   res.render("urls_index", templateVars);
+// });
