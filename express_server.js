@@ -9,9 +9,19 @@ app.use(cookieParser())
 app.set("view engine", "ejs");
 
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  b6UTxQ: { longURL: "https://www.tsn.ca", userID: "aJ48lW" },
+  i3BoGr: { longURL: "https://www.google.ca", userID: "aJ48lW" }
 };
+
+const urlsForUser = (id) => {
+  const templateVars = {};
+  for (url in urlDatabase) {
+    if (urlDatabase[url]["userID"] === id) {
+      templateVars[url] = urlDatabase[url];
+    }
+  }
+  return templateVars
+}
 
 const users = { 
   "userRandomID": {
@@ -102,16 +112,20 @@ app.get("/urls", (req, res) => {
 
 app.get("/urls/new", (req, res) => {
   const templateVars = { user: users[req.cookies["user_id"]], urls: urlDatabase };
+  if(!templateVars.user) {
+    res.redirect("/login")
+  }
   res.render("urls_new", templateVars);
 });
 
 app.get("/urls/:shortURL", (req, res) => {
-  const templateVars = { user: users[req.cookies["user_id"]], shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
-  if (templateVars.longURL === undefined) {
+  const templateVars = { user: users[req.cookies["user_id"]], shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]["longURL"] };
+  if(templateVars.user) {
+    if (templateVars.longURL === undefined) {
     res.send("Reenter vaild shortUrl")
   } else {
     res.render("urls_show", templateVars);
-  }
+  }}
 });
 
 app.get("/", (req, res) => {
@@ -128,12 +142,12 @@ app.get("/urls.json", (req, res) => {
 
 app.post("/urls", (req, res) => {
   const randomString = generateRandomString();
-  urlDatabase[randomString] = req.body.longURL;
+  urlDatabase[randomString] = { longURL: req.body.longURL};
   res.redirect(`/urls/${randomString}`);
 });
 
 app.get("/u/:shortURL", (req, res) => {
-  const longURL = urlDatabase[req.params.shortURL];
+  const longURL = urlDatabase[req.params.shortURL].longURL;
   res.redirect(longURL);
 });
 
@@ -143,6 +157,6 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 });
 
 app.post("/urls/:shortURL", (req, res) => {
-  urlDatabase[req.params.shortURL] = req.body.longURL;
+  urlDatabase[req.params.shortURL]["longURL"] = req.body.longURL;
   res.redirect(`/urls`);
 });
